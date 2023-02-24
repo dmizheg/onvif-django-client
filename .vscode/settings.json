@@ -1,8 +1,13 @@
 {
+<<<<<<< HEAD
     "python.pythonPath": "${workspaceFolder}/newvir/bin/python",
     "python.linting.pylintEnabled": false,
     "editor.wordWrap": "off",
     "editor.minimap.autohide": false,
     "editor.minimap.enabled": false,
     "editor.minimap.maxColumn": 100
+=======
+    "python.pythonPath": "${workspaceFolder}/newvir/bin/python3",
+    "python.linting.pylintEnabled": false
+>>>>>>> refs/remotes/origin/master
 }

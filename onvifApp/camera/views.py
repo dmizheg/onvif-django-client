@@ -9,8 +9,10 @@ from onvifApp.settings import BASE_DIR
 from camera.models import Camera
 from onvif import ONVIFService
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 # import zeep
 # from zeep.wsse.username import UsernameToken
+from camera.camera import MyCamera
 
 
 # Create your views here.
@@ -24,7 +26,9 @@ class CameraView(View):
         cam_obj = Camera.objects.get(id=kwargs['id'])
         mycam = None
         try:
-            mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, '/Users/zhegulovichds/PycharmProjects/pythonProject/venv/lib/python3.9/site-packages/wsdl/')
+            #mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, '/Users/zhegulovichds/PycharmProjects/pythonProject/venv/lib/python3.9/site-packages/wsdl/')
+            mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, '/home/zhegulovichds/.local/lib/python3.10/site-packages/wsdl')
+            
         except Exception as e:
             print('Exception message : ' , str(e))
             cam_obj.delete()
@@ -94,28 +98,104 @@ class CameraView(View):
                 'syslog_resp_list' : syslog_resp_list,
                 'Sysdt_dt':Sysdt_dt, 'Sysdt_year' : Sysdt_year,
                 'Sysdt_hour' : Sysdt_hour, 'Sysdt_tz' : Sysdt_tz,
-                'NTP_server' : NTP_server, 'OSD_caption' : OSD_caption
+                'NTP_server' : NTP_server, 'OSD_caption' : OSD_caption,
+                'cam_id' : cam_obj.id, 'cam_ip' : cam_obj.ip, 'cam_pass' : cam_obj.password
                  })
 
-    def post(self, request, *args, **kwargs):
-        print('nothing')
-    def my_view(request):
-        if request.is_ajax() and request.method == 'POST':
-            print("do smth")
-            print("do smth")
-            print("do smth")
-            print("do smth")
-            return JsonResponse({'message': 'Функция выполнена успешно.'})
-        return JsonResponse({'message': 'Ошибка выполнения функции!!!!.'}, status=400)
 
-def my_view(request):
-    if request.is_ajax() and request.method == 'POST':
-        print("do smth")
-        print("do smth")
-        print("do smth")
-        print("do smth")
-        return JsonResponse({'message': 'Функция выполнена успешно.'})
-    return JsonResponse({'message': 'Ошибка выполнения функции!!!!.'}, status=400)
+
+
+
+
+
+
+
+
+def operation(request, id):
+    op = request.GET.get('op')
+    caption = request.GET.get('caption')
+    cam_ip = request.GET.get('cam_ip')
+    cam_pass = request.GET.get('cam_pass')
+  
+    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
+
+    if op == '1':
+        result = str(mycam.osd_changeName(caption))
+    if op == '2':
+        result = str(mycam.setNTP())
+    if op == '3':
+        result = str(mycam.osd_delName())
+    if op == '4':
+        result = str(mycam.osd_enableName(caption))
+        
+        
+
+  
+    data = {
+        
+        'test': result
+    }
+    return JsonResponse(data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def osd_changeName(request, id):
+    caption = request.GET.get('caption')
+    cam_ip = request.GET.get('cam_ip')
+    cam_pass = request.GET.get('cam_pass')
+  
+    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
+    result = str(mycam.osd_changeName(caption))
+
+  
+    data = {
+        
+        'test': result
+    }
+    return JsonResponse(data)
+
+
+
+
+
+def ntp_enable(request, id):
+    cam_ip = request.GET.get('cam_ip')
+    cam_pass = request.GET.get('cam_pass')
+
+    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
+    result = str(mycam.setNTP())
+   
+    
+    data = {
+        'test': result
+    }
+    return JsonResponse(data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def get_objects(request):
  

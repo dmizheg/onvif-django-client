@@ -41,7 +41,9 @@
         {% if NTP_server %}
         <p>NTP-server : {{ NTP_server }} </p>
         {% endif %}
-        <button id="my-button">Изменить NTP-сервер</button>
+        <button id="ntp-enable-button">Включить NTP-сервер</button>
+        <div id="ntp-result"></div>
+
     </div>
 </div>
 <div class="eight wide computer sixteen wide mobile column">
@@ -50,7 +52,11 @@
         {% if OSD_caption %}
         <p>OSD Camera Name : {{ OSD_caption }} </p>
         {% endif %}
-        <button id="my-button1">Отключить надпись</button>
+        <input type="text" id="osd-input" placeholder="введите название" />
+        <button id="submit-osd-button">Изменить</button>
+        <button id="disable-osd-button">Отключить</button>
+        <button id="enable-osd-button">Включить</button>
+        <div id="osd-result"></div>
     </div>
 </div>
 <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
@@ -75,6 +81,7 @@
 <script>
 
 
+<<<<<<< HEAD
 
             $(document).ready(function() {
                 $('#submit-button').click(function() {
@@ -125,6 +132,89 @@ document.getElementById('my-button1').addEventListener('click', function() {
             }
         });
     });
+=======
+$(document).ready(function() {
+        $('#submit-osd-button').click(function() {
+            //var caption = $('#param1').val();
+            caption =  $('#osd-input').val();
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '1',
+                    'caption': caption,
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    //var isEven = data.is_even;
+                    //var message = isEven ? 'Сделано' : 'Ошибка';
+                    $('#osd-result').text(data.test);
+                }
+            });
+        });
+    });
+
+
+
+    $(document).ready(function() {
+        $('#ntp-enable-button').click(function() {
+            caption =  $('#osd-input').val();
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '2',
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    $('#ntp-result').text(data.test);
+                }
+            });
+        });
+    });
+
+
+
+    $(document).ready(function() {
+        $('#disable-osd-button').click(function() {
+            caption =  $('#osd-input').val();
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '3',
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    $('#osd-input').val('');
+                  
+                    $('#osd-result').text(data.test);
+                }
+            });
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#enable-osd-button').click(function() {
+            caption =  $('#osd-input').val();
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '4',
+                    'caption': caption,
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    $('#osd-result').text(data.test);
+                }
+            });
+        });
+    });
+        
+    
+>>>>>>> refs/remotes/origin/master
 </script>
 <!-- <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
         <div class="sixteen wide column">
