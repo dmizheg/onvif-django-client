@@ -104,18 +104,33 @@ class CameraView(View):
 
 
 
-def osd_changeName(request, id):
+
+
+
+
+
+
+
+def operation(request, id):
+    op = request.GET.get('op')
     caption = request.GET.get('caption')
     cam_ip = request.GET.get('cam_ip')
     cam_pass = request.GET.get('cam_pass')
-
-
-    
+  
     mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
-    result = str(mycam.osd_changeName(caption))
-    
-    
-    
+
+    if op == '1':
+        result = str(mycam.osd_changeName(caption))
+    if op == '2':
+        result = str(mycam.setNTP())
+    if op == '3':
+        result = str(mycam.osd_delName())
+    if op == '4':
+        result = str(mycam.osd_enableName(caption))
+        
+        
+
+  
     data = {
         
         'test': result
@@ -123,28 +138,61 @@ def osd_changeName(request, id):
     return JsonResponse(data)
 
 
-@csrf_exempt
-def my_view(request):
-    if request.method == 'POST':
-        param = request.POST.get('param')
-        my_dict = {'message': f'The parameter passed was {param}'}
-
-        return JsonResponse(my_dict)
-    else:
-        return JsonResponse({'error': 'Invalid request method'})
 
 
 
-def my_ajax_view(request):
-    if request.method == 'POST' and request.is_ajax():
-        # Получаем данные из POST-запроса
-        my_data = request.POST.get('my_data', None)
 
-        # Делаем что-то с полученными данными (например, обрабатываем их и сохраняем в базу данных)
 
-        # Отправляем ответ в формате JSON
-        response_data = {'success': True}
-        return JsonResponse(response_data)
+
+
+
+
+
+
+
+def osd_changeName(request, id):
+    caption = request.GET.get('caption')
+    cam_ip = request.GET.get('cam_ip')
+    cam_pass = request.GET.get('cam_pass')
+  
+    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
+    result = str(mycam.osd_changeName(caption))
+
+  
+    data = {
+        
+        'test': result
+    }
+    return JsonResponse(data)
+
+
+
+
+
+def ntp_enable(request, id):
+    cam_ip = request.GET.get('cam_ip')
+    cam_pass = request.GET.get('cam_pass')
+
+    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
+    result = str(mycam.setNTP())
+   
+    
+    data = {
+        'test': result
+    }
+    return JsonResponse(data)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

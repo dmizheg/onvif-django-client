@@ -1,8 +1,8 @@
 from django.urls import path, re_path
 from .views import(CameraView, CameraLoginView)
 from .views import osd_changeName
-from .views import my_view
-from .views import my_ajax_view
+from .views import ntp_enable
+from .views import operation
 
 
 urlpatterns = [
@@ -11,9 +11,10 @@ urlpatterns = [
 			name = "camera_detail"),
 		re_path(r'^$', CameraLoginView.as_view(), 
 			name = "camera_login"),
-	    re_path(r'^(?P<id>\d+)$', osd_changeName, name='osd_changeName'),
-        path('<int:param>', my_view, name='my_url'),
-        re_path(r'^(?P<id>\d+)$', my_ajax_view, name='my_ajax_view'),
+        re_path(r'^(?P<id>\d+)$', operation, name='operation'),
+       # re_path(r'^(?P<id>\d+)$', ntp_enable, name='ntp_enable'),
+        #re_path(r'^(?P<id>\d+)$', osd_changeName, name='osd_changeName'),
+        
 
 
             

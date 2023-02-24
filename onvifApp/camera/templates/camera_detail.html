@@ -42,6 +42,7 @@
         <p>NTP-server : {{ NTP_server }} </p>
         {% endif %}
         <button id="ntp-enable-button">Включить NTP-сервер</button>
+        <div id="ntp-result"></div>
 
     </div>
 </div>
@@ -50,12 +51,11 @@
         <p style="font-size: 16px;">OSD information :</p>
         {% if OSD_caption %}
         <p>OSD Camera Name : {{ OSD_caption }} </p>
-        <p>param1 : {{ cam_ip }} </p>
-        <p>param2 : {{ cam_pass }} </p>
         {% endif %}
         <input type="text" id="osd-input" placeholder="введите название" />
         <button id="submit-osd-button">Изменить</button>
         <button id="disable-osd-button">Отключить</button>
+        <button id="enable-osd-button">Включить</button>
         <div id="osd-result"></div>
     </div>
 </div>
@@ -72,41 +72,23 @@
     {% endif %}
     </div>
     </div>
-    <input type="text" id="input_field" name="input_field">
-    <button id="submit_button1">Submit</button>
-    <div id="result">res</div>
 </div>
 
 
 <script>
-    $(document).ready(function() {
-        $("#submit_button1").click(function() {
-            var input_value = $("#input_field").val();
-            $.ajax({
-                type: "POST",
-                url: "4/",
-                data: {param: input_value},
-                success: function(data) {
-                    $("#result").html(data.message);
-                }
-            });
-        });
-    });
 
-    $(document).ready(function() {
+
+$(document).ready(function() {
         $('#submit-osd-button').click(function() {
             //var caption = $('#param1').val();
-           
             caption =  $('#osd-input').val();
-            
-
             $.ajax({
-                url: "{% url 'osd_changeName' id=cam_id  %}",
+                url: "{% url 'operation' id=cam_id  %}",
                 data: {
+                    'op': '1',
                     'caption': caption,
                     'cam_ip': '{{cam_ip}}',
                     'cam_pass': '{{cam_pass}}'
-                    
                 },
                 success: function(data) {
                     //var isEven = data.is_even;
@@ -117,34 +99,66 @@
         });
     });
 
-        
-    
+
+
     $(document).ready(function() {
-        $('#disable-osd-button').click(function() {
-            // Получаем данные для отправки
-            var myData = 'Some data to send';
-            
-            // Отправляем ajax-запрос
+        $('#ntp-enable-button').click(function() {
+            caption =  $('#osd-input').val();
             $.ajax({
-                url: '{% url "my_ajax_view" id=cam_id   %}',
-                type: 'POST',
-                dataType: 'json',
+                url: "{% url 'operation' id=cam_id  %}",
                 data: {
-                    'my_data': myData,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    'op': '2',
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
                 },
                 success: function(data) {
-                    // Обрабатываем успешный ответ
-                    console.log(data);
-                },
-                error: function(xhr, status, error) {
-                    // Обрабатываем ошибку
-                    console.log(error);
+                    $('#ntp-result').text(data.test);
                 }
             });
         });
     });
 
+
+
+    $(document).ready(function() {
+        $('#disable-osd-button').click(function() {
+            caption =  $('#osd-input').val();
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '3',
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    $('#osd-input').val('');
+                  
+                    $('#osd-result').text(data.test);
+                }
+            });
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('#enable-osd-button').click(function() {
+            caption =  $('#osd-input').val();
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '4',
+                    'caption': caption,
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    $('#osd-result').text(data.test);
+                }
+            });
+        });
+    });
+        
+    
 </script>
 
 
