@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from onvif import ONVIFCamera
 from django.shortcuts import redirect
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 import os
 from django.template import RequestContext
 from onvifApp.settings import BASE_DIR
@@ -117,6 +117,23 @@ def my_view(request):
         return JsonResponse({'message': 'Функция выполнена успешно.'})
     return JsonResponse({'message': 'Ошибка выполнения функции!!!!.'}, status=400)
 
+def get_objects(request):
+ 
+    return JsonResponse({'message': 'Функция выполнена успешно.'})
+
+
+def is_even(request, number):
+    number = int(request.GET.get('number'))
+    result = number % 2 == 0
+    data = {
+
+        'is_even': result
+    }
+    return JsonResponse(data)
+
+
+
+
 
 class CameraLoginView(View):
 
@@ -131,5 +148,6 @@ class CameraLoginView(View):
         password = request.POST.get('password', '')
         obj = Camera.objects.create(ip=ip, port=port,
             username=username, password=password)
+        print(obj.id)
         return redirect(
 			'camera_detail', obj.id)

@@ -50,7 +50,7 @@
         {% if OSD_caption %}
         <p>OSD Camera Name : {{ OSD_caption }} </p>
         {% endif %}
-
+        <button id="my-button1">Отключить надпись</button>
     </div>
 </div>
 <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
@@ -66,10 +66,41 @@
     {% endif %}
     </div>
     </div>
+    <input type="text" id="number-input" />
+    <button id="submit-button">Check</button>
+    <div id="result"></div>
 </div>
 
 
 <script>
+
+
+
+            $(document).ready(function() {
+                $('#submit-button').click(function() {
+                    var number = $('#number-input').val();
+                  // Преобразование введенного значения в число
+                    number = parseInt(number);
+                    nnn = 4
+                    $.ajax({
+                        url: "{% url 'is-even' nnn %}",
+                        data: {
+                            'number': number
+                        },
+                        success: function(data) {
+                            var isEven = data.is_even;
+                            var message = isEven ? 'The number is even.' : 'The number is odd.';
+                            $('#result').text(message);
+                        }
+                    });
+                });
+            });
+
+
+
+
+
+
     document.getElementById('my-button').addEventListener('click', function() {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{% url "my_view" %}');
@@ -85,9 +116,16 @@
         };
         xhr.send();
     });
+
+document.getElementById('my-button1').addEventListener('click', function() {
+        $.ajax({
+            url: "{% url 'get-objects' %}",
+            success: function(data) {
+                alert('Ошибка выполнения функции.');
+            }
+        });
+    });
 </script>
-
-
 <!-- <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
         <div class="sixteen wide column">
         <div class="ui orange message">
