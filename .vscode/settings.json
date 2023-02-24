@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "${workspaceFolder}/newvir/bin/python",
+    "python.pythonPath": "${workspaceFolder}/newvir/bin/python3",
     "python.linting.pylintEnabled": false
 }
