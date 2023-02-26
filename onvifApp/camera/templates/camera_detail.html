@@ -3,62 +3,221 @@
 {% block content %}
 <br>
 <div class="ui container grid">
-<div class="eight wide computer sixteen wide mobile column">
-    <div class="ui teal message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
-        <p style="font-size: 16px; font-style: italic">Device information :</p>
-        {% if Manufacturer %}
-        <p>Manufacturer : {{ Manufacturer }} </p>
-        {% endif %}
-        {% if Model %}
-        <p>Model : {{ Model }} </p>
-        {% endif %}
-        {% if FirmwareVersion %}
-        <p>Firmware Version : {{ FirmwareVersion }} </p>
-        {% endif %}
-        {% if SerialNumber %}
-        <p>Serial Number : {{ SerialNumber }} </p>
-        {% endif %}
-        {% if HardwareId %}
-        <p>Hardware Id : {{ HardwareId }} </p>
-        {% endif %}
+    <div class="eight wide computer sixteen wide mobile column">
+        <div class="ui teal message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-size: 16px; font-style: italic">Device information :</p>
+            {% if Manufacturer %}
+            <p>Manufacturer : {{ Manufacturer }} </p>
+            {% endif %}
+            {% if Model %}
+            <p>Model : {{ Model }} </p>
+            {% endif %}
+            {% if FirmwareVersion %}
+            <p>Firmware Version : {{ FirmwareVersion }} </p>
+            {% endif %}
+            {% if SerialNumber %}
+            <p>Serial Number : {{ SerialNumber }} </p>
+            {% endif %}
+            {% if HardwareId %}
+            <p>Hardware Id : {{ HardwareId }} </p>
+            {% endif %}
+            <button id="reboot-button">Reboot</button>
+
+        </div>
+    </div>
+    
+    <div class="eight wide computer sixteen wide mobile column">
+        <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-size: 16px;">System Date information :</p>
+            <!-- {% if Sysdt_dt %}
+            <p>System Time : {{ Sysdt_dt.Date.UTCDateTime.Time.Hour }}:{{ Sysdt_dt.Date.UTCDateTime.Time.Minute }} </p>
+            {% endif %} -->
+            {% if Sysdt_year %}
+            <p>System Year/Month/Day : {{ Sysdt_year.Year }}/{{ Sysdt_year.Month }}/{{ Sysdt_year.Day }}  </p>
+            {% endif %}
+            {% if Sysdt_hour %}
+            <p>Daylight Savings? : {{ Sysdt_hour }} </p>
+            {% endif %}
+            {% if Sysdt_tz %}
+            <p>System Time Zone : {{ Sysdt_tz.TZ }} </p>
+            {% endif %}
+            {% if NTP_server %}
+            <label>NTP-server: <input type="text" id="NTP-server" name="NTP-server" value="{{ NTP_server }}" placeholder="10.1.0.1" /></label><br><br>
+            {% endif %}
+            <button id="ntp-enable-button">Save</button>
+        </div>
     </div>
 </div>
-<div class="eight wide computer sixteen wide mobile column">
-    <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
-        <p style="font-size: 16px;">System Date information :</p>
-        <!-- {% if Sysdt_dt %}
-        <p>System Time : {{ Sysdt_dt.Date.UTCDateTime.Time.Hour }}:{{ Sysdt_dt.Date.UTCDateTime.Time.Minute }} </p>
-        {% endif %} -->
-        {% if Sysdt_year %}
-        <p>System Year/Month/Day : {{ Sysdt_year.Year }}/{{ Sysdt_year.Month }}/{{ Sysdt_year.Day }}  </p>
-        {% endif %}
-        {% if Sysdt_hour %}
-        <p>Daylight Savings? : {{ Sysdt_hour }} </p>
-        {% endif %}
-        {% if Sysdt_tz %}
-        <p>System Time Zone : {{ Sysdt_tz.TZ }} </p>
-        {% endif %}
-        {% if NTP_server %}
-        <p>NTP-server : {{ NTP_server }} </p>
-        {% endif %}
-        <button id="ntp-enable-button">Включить NTP-сервер</button>
-        <div id="ntp-result"></div>
+
+
+<div class="ui container grid">
+    <div class="eight wide computer sixteen wide mobile column">
+        <div class="ui orange message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-size: 16px;">Network information :</p>
+
+
+            {% if DHCP %}
+            <label>DHCP <input type="checkbox" name="dhcp-status" value=1 checked/></label><br>
+            {% else %}            
+            <label>DHCP <input type="checkbox" name="dhcp-status" value=0 /></label><br>
+            <label>IPv4 Address: <input type="text" id="network-ip" name="network-ip" value="{{ IPv4 }}" placeholder="192.168.1.12" /></label><br>
+            <label>IPv4 Subnet Mask: <input type="text" id="network-mask" name="network-mask" value="{{ PrefixLength }}" placeholder="255.255.255.0" /></label><br>
+            <label>IPv4 Default Gateway: <input type="text" id="network-gateway" name="network-gateway" value="{{ Gateway }}" placeholder="192.168.1.1" /></label><br><br>
+            {% endif %}
+
+ <!--  
+
+            <label>IPv4 Address: <input type="text" id="network-ip" name="network-ip" value="{{ IPv4 }}" placeholder="192.168.1.12" disabled /></label><br>
+            <label>IPv4 Subnet Mask: <input type="text" id="network-mask" name="network-mask" value="{{ PrefixLength }}" placeholder="255.255.255.0" disabled /></label><br>
+            <label>IPv4 Default Gateway: <input type="text" id="network-gateway" name="network-gatewa" value="{{ Gateway }}" placeholder="192.168.1.1" disabled /></label><br>
+
+-->   
+            <button id="submit-network-information">Save</button>
+        </div>
+    </div>
+
+        
+    <div class="eight wide computer sixteen wide mobile column">
+        <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-size: 16px;">OSD information :</p>
+            {% if OSD_caption == " " %}
+            <label><input type="checkbox" id="osd_status" name="osd_status" value=osd_status/> Display Name</label><br><br> 
+            <label>Camera Name: <input type="text" id="OSD_caption" name="OSD_caption" value="{{ OSD_caption }}" placeholder="camera name" disabled /></label><br><br>   
+            {% else %}
+            <label><input type="checkbox" id="osd_status" name="osd_status" value=osd_status checked/> Display Name</label><br><br> 
+            <label>Camera Name: <input type="text" id="OSD_caption" name="OSD_caption" value="{{ OSD_caption }}" placeholder="camera name" /></label><br><br>   
+            {% endif %}
+            <button id="save-osd-button">Save</button>
+    </div>
+</div>
+
+<script>
+
+
+
+</script>
+    
+    
+<div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+    <div class="sixteen wide column">
+    <div class="ui gray message">
+        <div id="debug-result"></div>
 
     </div>
-</div>
-<div class="eight wide computer sixteen wide mobile column">
-    <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
-        <p style="font-size: 16px;">OSD information :</p>
-        {% if OSD_caption %}
-        <p>OSD Camera Name : {{ OSD_caption }} </p>
-        {% endif %}
-        <input type="text" id="osd-input" placeholder="введите название" />
-        <button id="submit-osd-button">Изменить</button>
-        <button id="disable-osd-button">Отключить</button>
-        <button id="enable-osd-button">Включить</button>
-        <div id="osd-result"></div>
     </div>
 </div>
+
+
+
+<!------------------------------------------------------------------------------------------------------------->
+<script>
+
+const osd_status = document.querySelector('#osd_status');
+    const OSD_caption = document.querySelector('#OSD_caption');
+    osd_status.addEventListener('change', () => {
+         if (osd_status.checked) {   OSD_caption.disabled = false;;  //OSD_caption.value = '';
+        } else {                     OSD_caption.disabled = true;
+     }
+    });   
+
+
+$(document).ready(function() {
+        $('#save-osd-button').click(function() {
+            caption =  $('#OSD_caption').val();
+            var checkBox = document.getElementById("osd_status");
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': '1',
+                    'osd_status': checkBox.checked,
+                    'caption': caption,
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    //var isEven = data.is_even;
+                    //var message = isEven ? 'Сделано' : 'Ошибка';
+                    $('#debug-result').text(data.result);
+                }
+            });
+        });
+    });
+
+
+
+
+
+
+
+
+    $(document).ready(function() {
+        $('#submit-network-information').click(function() {
+                   
+            
+            new_dhcp = $('#dhcp-status').val();
+            new_ip =  $('#network-ip').val();
+            new_mask =  $('#network-mask').val();
+            new_gateway =  $('#network-gateway').val();
+
+            
+            $('#debug-result').text(new_dhcp);
+
+            if (showAlert() == true) {
+                $.ajax({
+                    url: "{% url 'operation' id=cam_id  %}",
+                    data: {
+                        'op': '5',
+                        'cam_ip': '{{cam_ip}}',
+                        'cam_pass': '{{cam_pass}}',
+                        'new_dhcp': new_dhcp,
+                        'new_ip': new_ip,
+                        'new_mask': new_mask,
+                        'new_gateway': new_gateway
+                    },
+                    success: function(data) {
+                        showAlertReboot()
+                        $('#debug-result').text(data.result);
+                    }
+                });
+            }
+        });
+    });
+        
+
+    
+   
+    
+
+
+    function showAlert() {
+			var result = confirm("Are you sure?");
+			if (result == true) {
+				return true
+			} else {
+				return false
+			}
+		}
+
+    function showAlertReboot() {
+			var result = alert("Rebooting....");
+		}
+
+  
+//function boxChecked() {
+// var checkBox = document.getElementById("Checkbox");
+//  if (checkBox.checked == true){
+//    alert("The checkbox is CHECKED! Thanks for accepting:");
+// } 
+//}
+
+
+
+    
+</script>
+
+
+<!--
+
 <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
     <div class="sixteen wide column">
     {% if syslog_resp_list %}
@@ -72,151 +231,12 @@
     {% endif %}
     </div>
     </div>
-    <input type="text" id="number-input" />
-    <button id="submit-button">Check</button>
-    <div id="result"></div>
 </div>
 
 
-<script>
 
 
-<<<<<<< HEAD
-
-            $(document).ready(function() {
-                $('#submit-button').click(function() {
-                    var number = $('#number-input').val();
-                  // Преобразование введенного значения в число
-                    number = parseInt(number);
-                    nnn = 4
-                    $.ajax({
-                        url: "{% url 'is-even' nnn %}",
-                        data: {
-                            'number': number
-                        },
-                        success: function(data) {
-                            var isEven = data.is_even;
-                            var message = isEven ? 'The number is even.' : 'The number is odd.';
-                            $('#result').text(message);
-                        }
-                    });
-                });
-            });
-
-
-
-
-
-
-    document.getElementById('my-button').addEventListener('click', function() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '{% url "my_view" %}');
-        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                alert(response.message);
-            } else {
-                alert('Ошибка выполнения функции.');
-            }
-        };
-        xhr.send();
-    });
-
-document.getElementById('my-button1').addEventListener('click', function() {
-        $.ajax({
-            url: "{% url 'get-objects' %}",
-            success: function(data) {
-                alert('Ошибка выполнения функции.');
-            }
-        });
-    });
-=======
-$(document).ready(function() {
-        $('#submit-osd-button').click(function() {
-            //var caption = $('#param1').val();
-            caption =  $('#osd-input').val();
-            $.ajax({
-                url: "{% url 'operation' id=cam_id  %}",
-                data: {
-                    'op': '1',
-                    'caption': caption,
-                    'cam_ip': '{{cam_ip}}',
-                    'cam_pass': '{{cam_pass}}'
-                },
-                success: function(data) {
-                    //var isEven = data.is_even;
-                    //var message = isEven ? 'Сделано' : 'Ошибка';
-                    $('#osd-result').text(data.test);
-                }
-            });
-        });
-    });
-
-
-
-    $(document).ready(function() {
-        $('#ntp-enable-button').click(function() {
-            caption =  $('#osd-input').val();
-            $.ajax({
-                url: "{% url 'operation' id=cam_id  %}",
-                data: {
-                    'op': '2',
-                    'cam_ip': '{{cam_ip}}',
-                    'cam_pass': '{{cam_pass}}'
-                },
-                success: function(data) {
-                    $('#ntp-result').text(data.test);
-                }
-            });
-        });
-    });
-
-
-
-    $(document).ready(function() {
-        $('#disable-osd-button').click(function() {
-            caption =  $('#osd-input').val();
-            $.ajax({
-                url: "{% url 'operation' id=cam_id  %}",
-                data: {
-                    'op': '3',
-                    'cam_ip': '{{cam_ip}}',
-                    'cam_pass': '{{cam_pass}}'
-                },
-                success: function(data) {
-                    $('#osd-input').val('');
-                  
-                    $('#osd-result').text(data.test);
-                }
-            });
-        });
-    });
-
-
-    $(document).ready(function() {
-        $('#enable-osd-button').click(function() {
-            caption =  $('#osd-input').val();
-            $.ajax({
-                url: "{% url 'operation' id=cam_id  %}",
-                data: {
-                    'op': '4',
-                    'caption': caption,
-                    'cam_ip': '{{cam_ip}}',
-                    'cam_pass': '{{cam_pass}}'
-                },
-                success: function(data) {
-                    $('#osd-result').text(data.test);
-                }
-            });
-        });
-    });
-        
-    
->>>>>>> refs/remotes/origin/master
-</script>
-<!-- <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+<div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
         <div class="sixteen wide column">
         <div class="ui orange message">
         {% if sup_info %}
@@ -224,7 +244,9 @@ $(document).ready(function() {
         {% endif %}
         </div>
         </div>
-</div> -->
+</div>
+-->
+
 
 
 
