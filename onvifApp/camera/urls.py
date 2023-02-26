@@ -1,7 +1,5 @@
 from django.urls import path, re_path
 from .views import(CameraView, CameraLoginView)
-from .views import osd_changeName
-from .views import ntp_enable
 from .views import operation
 
 

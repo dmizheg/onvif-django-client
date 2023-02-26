@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 # import zeep
 # from zeep.wsse.username import UsernameToken
 from camera.camera import MyCamera
+from camera.config import PATHTOWSDL
 
 
 # Create your views here.
@@ -26,8 +27,8 @@ class CameraView(View):
         cam_obj = Camera.objects.get(id=kwargs['id'])
         mycam = None
         try:
-            #mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, '/Users/zhegulovichds/PycharmProjects/pythonProject/venv/lib/python3.9/site-packages/wsdl/')
-            mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, '/home/zhegulovichds/.local/lib/python3.10/site-packages/wsdl')
+            #mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, PATHTOWSDL)
+            mycam = MyCamera(cam_obj.ip,cam_obj.port, cam_obj.username, cam_obj.password)
             
         except Exception as e:
             print('Exception message : ' , str(e))
@@ -88,10 +89,13 @@ class CameraView(View):
         NTP_server = mycam.devicemgmt.GetNTP().NTPManual[0].IPv4Address
         
         #############
+        
+        # Get network information
 
+        config = mycam.get_network_config()
 
-        return render( request,
-			'camera_detail.html', {'hostname': hostname,
+        param = {
+                'hostname': hostname,
                 'Manufacturer' : Manufacturer,'Model' : Model, 
                 'FirmwareVersion': FirmwareVersion,
                 'SerialNumber' : SerialNumber, 'HardwareId':HardwareId,
@@ -99,8 +103,14 @@ class CameraView(View):
                 'Sysdt_dt':Sysdt_dt, 'Sysdt_year' : Sysdt_year,
                 'Sysdt_hour' : Sysdt_hour, 'Sysdt_tz' : Sysdt_tz,
                 'NTP_server' : NTP_server, 'OSD_caption' : OSD_caption,
-                'cam_id' : cam_obj.id, 'cam_ip' : cam_obj.ip, 'cam_pass' : cam_obj.password
-                 })
+                'cam_id' : cam_obj.id, 'cam_ip' : cam_obj.ip, 'cam_pass' : cam_obj.password 
+                }
+
+
+        param = param | config
+
+        #############
+        return render(request, 'camera_detail.html', param)
 
 
 
@@ -113,72 +123,43 @@ class CameraView(View):
 
 def operation(request, id):
     op = request.GET.get('op')
-    caption = request.GET.get('caption')
     cam_ip = request.GET.get('cam_ip')
     cam_pass = request.GET.get('cam_pass')
   
     mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
 
     if op == '1':
-        result = str(mycam.osd_changeName(caption))
+        osd_status = request.GET.get('osd_status')       
+        caption = request.GET.get('caption')
+        result = 'error'
+        if osd_status == 'true':
+            mycam.osd_enableName(caption)
+            result = str(mycam.osd_changeName(caption))
+            result = result+' Caption is Enabled. New name is: '+caption+' '+osd_status
+        if osd_status == 'false':
+            result = str(mycam.osd_delName())
+            result = result+' Caption is Disabled'
+
+
+
+        
     if op == '2':
         result = str(mycam.setNTP())
-    if op == '3':
-        result = str(mycam.osd_delName())
-    if op == '4':
-        result = str(mycam.osd_enableName(caption))
-        
-        
 
-  
-    data = {
-        
-        'test': result
-    }
-    return JsonResponse(data)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def osd_changeName(request, id):
-    caption = request.GET.get('caption')
-    cam_ip = request.GET.get('cam_ip')
-    cam_pass = request.GET.get('cam_pass')
-  
-    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
-    result = str(mycam.osd_changeName(caption))
-
-  
-    data = {
-        
-        'test': result
-    }
-    return JsonResponse(data)
-
-
-
-
-
-def ntp_enable(request, id):
-    cam_ip = request.GET.get('cam_ip')
-    cam_pass = request.GET.get('cam_pass')
-
-    mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
-    result = str(mycam.setNTP())
-   
+    if op == '5':
+        new_dhcp = request.GET.get('new_dhcp')
+        new_ip = request.GET.get('new_ip')
+        new_mask = request.GET.get('new_mask')
+        new_gateway = request.GET.get('new_gateway')
+        result = mycam.set_network_config(False, new_ip, new_mask, new_gateway)
     
+        
+        #result = new_ip
+
+  
     data = {
-        'test': result
+        
+        'result': result
     }
     return JsonResponse(data)
 
@@ -190,26 +171,13 @@ def ntp_enable(request, id):
 
 
 
-
-
-
-
-
-
-
-def get_objects(request):
  
-    return JsonResponse({'message': 'Функция выполнена успешно.'})
+
+ 
+ 
 
 
-def is_even(request, number):
-    number = int(request.GET.get('number'))
-    result = number % 2 == 0
-    data = {
-
-        'is_even': result
-    }
-    return JsonResponse(data)
+ 
 
 
 

@@ -29,9 +29,6 @@ class MyCamera(ONVIFCamera):
 
             self.network_interfaces = self.devicemgmt_service.GetNetworkInterfaces()
             self.ip_config = self.network_interfaces[0]
-            self.gateway_config = self.devicemgmt_service.GetNetworkDefaultGateway()
-            self.ip_interface_token = self.ip_config.token
-
         except exceptions.ONVIFError as err:
             self.error = err
         else:
@@ -201,40 +198,21 @@ class MyCamera(ONVIFCamera):
         if self.error:
             return self.error
         else:
-            gateway = self.gateway_config.IPv4Address[0]
+            gateway_config = self.devicemgmt_service.GetNetworkDefaultGateway()
+            gateway = gateway_config.IPv4Address[0]
             dhcp_enable_flag = self.ip_config.IPv4.Config.DHCP
             if dhcp_enable_flag:
                 config = {
-                    'DHCP': self.ip_config.IPv4.Config.DHCP
-                }
+                   'DHCP': self.ip_config.IPv4.Config.DHCP
+                   }
             else:
                 config = {
-                    'DHCP': self.ip_config.IPv4.Config.DHCP,
-                    'IPv4': self.ip_config.IPv4.Config.Manual[0].Address,
-                    'PrefixLength': self.ip_config.IPv4.Config.Manual[0].PrefixLength,
-                    'Gateway': gateway
-                }
+                   'DHCP': self.ip_config.IPv4.Config.DHCP,
+                   'IPv4': self.ip_config.IPv4.Config.Manual[0].Address,
+                   'PrefixLength': self.ip_config.IPv4.Config.Manual[0].PrefixLength,
+                   'Gateway': gateway
+                   }
             return config
-
-
-    def set_network_config(self, dhcp_enable_flag, ip, prefix, gateway):
-        if self.error:
-            return self.error
-        else:
-            if dhcp_enable_flag:
-                result = self.devicemgmt_service.SetNetworkInterfaces(
-                    dict(InterfaceToken=self.ip_interface_token,
-                         NetworkInterface=dict(IPv4=dict(DHCP=dhcp_enable_flag))))
-                return result
-            else:
-                self.devicemgmt_service.SetNetworkDefaultGateway(dict(IPv4Address=gateway))
-                result = self.devicemgmt_service.SetNetworkInterfaces(
-                    dict( InterfaceToken=self.ip_interface_token,
-                          NetworkInterface=dict( IPv4=dict( Enabled=True,
-                                                            Manual=[dict( Address=ip,
-                                                                          PrefixLength=prefix)],
-                                                            DHCP=dhcp_enable_flag ))))
-                return result   # if True then manual reboot needed
 
 
 
