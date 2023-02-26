@@ -27,7 +27,7 @@ class CameraView(View):
         cam_obj = Camera.objects.get(id=kwargs['id'])
         mycam = None
         try:
-            #mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, PATHTOWSDL)
+            mycam1 = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, PATHTOWSDL)
             mycam = MyCamera(cam_obj.ip,cam_obj.port, cam_obj.username, cam_obj.password)
             
         except Exception as e:
@@ -128,6 +128,10 @@ def operation(request, id):
   
     mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
 
+    if op == 'reboot':
+        result = str(mycam.reboot())
+
+
     if op == '1':
         osd_status = request.GET.get('osd_status')       
         caption = request.GET.get('caption')
@@ -135,15 +139,14 @@ def operation(request, id):
         if osd_status == 'true':
             mycam.osd_enableName(caption)
             result = str(mycam.osd_changeName(caption))
-            result = result+' Caption is Enabled. New name is: '+caption+' '+osd_status
+            result = 'Debug info: ' +result+' Caption is Enabled. New name is: '+caption+' '+osd_status
         if osd_status == 'false':
             result = str(mycam.osd_delName())
-            result = result+' Caption is Disabled'
-
+            result = 'Debug info: ' +result+' Caption is Disabled'
 
 
         
-    if op == '2':
+    if op == 'ntp':
         result = str(mycam.setNTP())
 
     if op == '5':
@@ -151,14 +154,14 @@ def operation(request, id):
         new_ip = request.GET.get('new_ip')
         new_mask = request.GET.get('new_mask')
         new_gateway = request.GET.get('new_gateway')
-        result = mycam.set_network_config(False, new_ip, new_mask, new_gateway)
-    
-        
-        #result = new_ip
+        if new_dhcp == 'true':
+            new_dhcp = True
+        else:
+            new_dhcp = False
+        result = mycam.set_network_config(bool(new_dhcp), new_ip, new_mask, new_gateway)
+        result = 'Debug info: Manual reboot: ' + str(result)
 
-  
-    data = {
-        
+    data = {        
         'result': result
     }
     return JsonResponse(data)

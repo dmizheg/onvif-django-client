@@ -54,29 +54,18 @@
     <div class="eight wide computer sixteen wide mobile column">
         <div class="ui orange message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
             <p style="font-size: 16px;">Network information :</p>
-
-
             {% if DHCP %}
-            <label>DHCP <input type="checkbox" name="dhcp-status" value=1 checked/></label><br>
+            <label>DHCP <input type="checkbox" id="dhcp-status" name="dhcp-status" value=1 checked/></label><br>
             {% else %}            
-            <label>DHCP <input type="checkbox" name="dhcp-status" value=0 /></label><br>
-            <label>IPv4 Address: <input type="text" id="network-ip" name="network-ip" value="{{ IPv4 }}" placeholder="192.168.1.12" /></label><br>
-            <label>IPv4 Subnet Mask: <input type="text" id="network-mask" name="network-mask" value="{{ PrefixLength }}" placeholder="255.255.255.0" /></label><br>
-            <label>IPv4 Default Gateway: <input type="text" id="network-gateway" name="network-gateway" value="{{ Gateway }}" placeholder="192.168.1.1" /></label><br><br>
+            <label>DHCP <input type="checkbox" id="dhcp-status" name="dhcp-status" value=0 /></label><br>
             {% endif %}
-
- <!--  
-
-            <label>IPv4 Address: <input type="text" id="network-ip" name="network-ip" value="{{ IPv4 }}" placeholder="192.168.1.12" disabled /></label><br>
-            <label>IPv4 Subnet Mask: <input type="text" id="network-mask" name="network-mask" value="{{ PrefixLength }}" placeholder="255.255.255.0" disabled /></label><br>
-            <label>IPv4 Default Gateway: <input type="text" id="network-gateway" name="network-gatewa" value="{{ Gateway }}" placeholder="192.168.1.1" disabled /></label><br>
-
--->   
+            <label>IPv4 Address: <input type="text" id="network-ip" name="network-ip" value="{{ IPv4 }}" placeholder="192.168.1.12" /></label><br>
+            <label>IPv4 Subnet Prefix: <input type="text" id="network-mask" name="network-mask" value="{{ PrefixLength }}" placeholder="24" /></label><br>
+            <label>IPv4 Default Gateway: <input type="text" id="network-gateway" name="network-gateway" value="{{ Gateway }}" placeholder="192.168.1.1" /></label><br><br>
             <button id="submit-network-information">Save</button>
         </div>
     </div>
 
-        
     <div class="eight wide computer sixteen wide mobile column">
         <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
             <p style="font-size: 16px;">OSD information :</p>
@@ -91,13 +80,33 @@
     </div>
 </div>
 
-<script>
-
-
-
-</script>
     
-    
+<div class="ui container grid">
+    <div class="eight wide computer sixteen wide mobile column">
+        <div class="ui yellow message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-size: 16px;">Image information :</p>
+            <br> 
+            <br> 
+            <br> 
+            <button id="submit-image-information">Save</button>
+        </div>
+    </div>
+
+    <div class="eight wide computer sixteen wide mobile column">
+        <div class="ui yellow message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+            <p style="font-size: 16px;">Video information :</p>
+            <br> 
+            <br> 
+            <br> 
+
+ 
+            <button id="save-video-button">Save</button>
+    </div>
+</div>
+
+
+
+
 <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
     <div class="sixteen wide column">
     <div class="ui gray message">
@@ -112,15 +121,25 @@
 <!------------------------------------------------------------------------------------------------------------->
 <script>
 
-const osd_status = document.querySelector('#osd_status');
-    const OSD_caption = document.querySelector('#OSD_caption');
-    osd_status.addEventListener('change', () => {
-         if (osd_status.checked) {   OSD_caption.disabled = false;;  //OSD_caption.value = '';
-        } else {                     OSD_caption.disabled = true;
-     }
-    });   
+   //================= ntp
+   $(document).ready(function() {
+        $('#ntp-enable-button').click(function() {
+                $.ajax({
+                    url: "{% url 'operation' id=cam_id  %}",
+                    data: {
+                        'op': 'ntp',
+                        'cam_ip': '{{cam_ip}}',
+                        'cam_pass': '{{cam_pass}}'
+                    },
+                    success: function(data) {                  
+                        $('#debug-result').text(data.result);
+                    }
+                });
+        });
+    });
+ 
 
-
+//================= osd
 $(document).ready(function() {
         $('#save-osd-button').click(function() {
             caption =  $('#OSD_caption').val();
@@ -143,24 +162,28 @@ $(document).ready(function() {
         });
     });
 
+    const osd_status = document.querySelector('#osd_status');
+    const OSD_caption = document.querySelector('#OSD_caption');
+    osd_status.addEventListener('change', () => {if (osd_status.checked) {   
+            OSD_caption.disabled = false;  //OSD_caption.value = '';
+        } else {                     
+            OSD_caption.disabled = true;
+        }
+    });  
 
 
 
-
-
-
-
+ 
+//================= network
     $(document).ready(function() {
         $('#submit-network-information').click(function() {
-                   
+            var checkBox = document.getElementById("dhcp-status");       
             
-            new_dhcp = $('#dhcp-status').val();
+            new_dhcp = checkBox.checked;
             new_ip =  $('#network-ip').val();
             new_mask =  $('#network-mask').val();
             new_gateway =  $('#network-gateway').val();
 
-            
-            $('#debug-result').text(new_dhcp);
 
             if (showAlert() == true) {
                 $.ajax({
@@ -175,20 +198,51 @@ $(document).ready(function() {
                         'new_gateway': new_gateway
                     },
                     success: function(data) {
-                        showAlertReboot()
+                        //showAlertReboot()
                         $('#debug-result').text(data.result);
                     }
                 });
             }
         });
     });
-        
 
+const dhcp_status = document.querySelector('#dhcp-status');
+    const network_ip = document.querySelector('#network-ip');
+    const network_mask = document.querySelector('#network-mask');
+    const network_gateway = document.querySelector('#network-gateway');
+    dhcp_status.addEventListener('change', () => {
+         if (dhcp_status.checked) {   
+            network_ip.disabled = true; 
+            network_mask.disabled = true;
+            network_gateway.disabled = true;
+        } else {                     
+            network_ip.disabled = false;
+            network_mask.disabled = false;
+            network_gateway.disabled = false;
+         }
+    });  
     
-   
+
+   //================= reboot
+   $(document).ready(function() {
+        $('#reboot-button').click(function() {
+            if (showAlert() == true) {
+                $.ajax({
+                    url: "{% url 'operation' id=cam_id  %}",
+                    data: {
+                        'op': 'reboot',
+                        'cam_ip': '{{cam_ip}}',
+                        'cam_pass': '{{cam_pass}}'
+                    },
+                    success: function(data) {                  
+                        $('#debug-result').text(data.result);
+                    }
+                });
+            }
+        });
+    });
     
-
-
+//================= alerts
     function showAlert() {
 			var result = confirm("Are you sure?");
 			if (result == true) {
@@ -201,15 +255,6 @@ $(document).ready(function() {
     function showAlertReboot() {
 			var result = alert("Rebooting....");
 		}
-
-  
-//function boxChecked() {
-// var checkBox = document.getElementById("Checkbox");
-//  if (checkBox.checked == true){
-//    alert("The checkbox is CHECKED! Thanks for accepting:");
-// } 
-//}
-
 
 
     
