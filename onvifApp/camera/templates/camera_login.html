@@ -16,6 +16,7 @@
 <br>
 {% endif %}
 
+
 <div style="text-align: center; font-size: 16px; font-family: Arial, Helvetica, sans-serif;">Enter camera credentials</div>
 <br>
 <div class="ui one column stackable center aligned container grid">
@@ -51,7 +52,62 @@
             </div>   
 </div>
 
+<br>
+
+
+<br>
+<div class="ui one column stackable center aligned container grid">
+            <div class="sixteen wide mobile eight wide computer column">
+                    <div class="ui raised padded text container segment">
+
+                      <div class="field">
+                        <label>IP address for ping: </label>
+                        <input type="text" id="ping_ip" name="ping_ip" placeholder="10.2.0.1" required>
+                        <button id="ping-button"> ping </button><br>
+        
+                        <div class="ui white " style="text-align: left; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+                          <br>
+                          <div id="ping-result"></div>
+
+                        </div>  
+                      </div>
+                      
+
+                    </div>
+              </div>   
+  </div>
+                      
+
+
 <script>
+
+
+  //================= ping
+  $(document).ready(function() {
+        $('#ping-button').click(function() {
+          ping_ip =  $('#ping_ip').val();
+                $.ajax({
+                    url: "{% url 'ping_ip' %}",
+                    data: {
+                        'cam_ip': ping_ip,
+                    },
+                    success: function(data) {                  
+                        $('#ping-result').text(data.result);
+                    }
+                });
+            
+        });
+    });
+
+
+    function showDebugAlert() {
+			var result = alert("ups...");
+		}
+
+
+
+
+
   $('.message .close')
   .on('click', function() {
     $(this)

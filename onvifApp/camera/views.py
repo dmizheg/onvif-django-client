@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 # import zeep
 # from zeep.wsse.username import UsernameToken
 from camera.camera import MyCamera
+from camera.camera import CameraHost
 from camera.config import PATHTOWSDL
 
 
@@ -116,6 +117,21 @@ class CameraView(View):
 
 
 
+
+def ping_ip(request):
+    cam_ip = request.GET.get('cam_ip')
+
+    host = CameraHost()
+    
+    result = host.ping(cam_ip)
+    #result = str(proc).replace("\\n", "<br>")
+    #result = str(result).replace("('", "")
+    #result = str(result).replace("', None)", "")
+
+    data = {        
+        'result': result
+    }
+    return JsonResponse(data)
 
 
 
