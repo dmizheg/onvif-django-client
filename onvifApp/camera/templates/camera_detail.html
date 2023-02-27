@@ -21,8 +21,9 @@
             {% if HardwareId %}
             <p>Hardware Id : {{ HardwareId }} </p>
             {% endif %}
-            <button id="reboot-button">Reboot</button>
-
+            <button id="reboot-button" style="float: left;">Reboot</button>
+            <button id="logout-button" style="float: right;">Logout</button>
+            <br>
         </div>
     </div>
     
@@ -44,6 +45,8 @@
             {% if NTP_server %}
             <label>NTP-server: <input type="text" id="NTP-server" name="NTP-server" value="{{ NTP_server }}" placeholder="10.1.0.1" /></label><br><br>
             {% endif %}
+            <br>
+            <br>
             <button id="ntp-enable-button">Save</button>
         </div>
     </div>
@@ -69,14 +72,16 @@
     <div class="eight wide computer sixteen wide mobile column">
         <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
             <p style="font-size: 16px;">OSD information :</p>
-            {% if OSD_caption == " " %}
+            {% if OSD_caption == "" %}
             <label><input type="checkbox" id="osd_status" name="osd_status" value=osd_status/> Display Name</label><br><br> 
             <label>Camera Name: <input type="text" id="OSD_caption" name="OSD_caption" value="{{ OSD_caption }}" placeholder="camera name" disabled /></label><br><br>   
             {% else %}
             <label><input type="checkbox" id="osd_status" name="osd_status" value=osd_status checked/> Display Name</label><br><br> 
             <label>Camera Name: <input type="text" id="OSD_caption" name="OSD_caption" value="{{ OSD_caption }}" placeholder="camera name" /></label><br><br>   
             {% endif %}
+            <br>
             <button id="save-osd-button">Save</button>
+        </div>
     </div>
 </div>
 
@@ -85,10 +90,30 @@
     <div class="eight wide computer sixteen wide mobile column">
         <div class="ui yellow message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
             <p style="font-size: 16px;">Image information :</p>
-            <br> 
-            <br> 
-            <br> 
-            <button id="submit-image-information">Save</button>
+            
+
+            <div class="ui two column grid">
+                <div class="column">
+                    <div class="ui segment">
+                            {% load static %}
+                             <img src="{% static 'test.jpg' %}" alt="My Image" style="width: 100%; height: auto;"> 
+                                <br>
+                    </div>
+                    
+                    </div>
+                    
+                <div class="column">
+
+                    <label><input type="checkbox" id="wdr_status" name="wdr_status" value=wdr_status/> WDR enable</label>
+               
+                </div>
+            </div>
+
+
+            <button style="id="submit-image-information">Get</button>
+            <button style="float: right; id="submit-image-information">Save</button>
+
+
         </div>
     </div>
 
@@ -98,7 +123,7 @@
             <br> 
             <br> 
             <br> 
-
+            <br>
  
             <button id="save-video-button">Save</button>
     </div>
@@ -107,14 +132,15 @@
 
 
 
+
 <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
     <div class="sixteen wide column">
     <div class="ui gray message">
         <div id="debug-result"></div>
-
     </div>
     </div>
 </div>
+
 
 
 
@@ -156,8 +182,6 @@ $(document).ready(function() {
                     'cam_pass': '{{cam_pass}}'
                 },
                 success: function(data) {
-                    //var isEven = data.is_even;
-                    //var message = isEven ? 'Сделано' : 'Ошибка';
                     $('#debug-result').text(data.result);
                 }
             });
@@ -166,10 +190,12 @@ $(document).ready(function() {
 
     const osd_status = document.querySelector('#osd_status');
     const OSD_caption = document.querySelector('#OSD_caption');
-    osd_status.addEventListener('change', () => {if (osd_status.checked) {   
-            OSD_caption.disabled = false;  //OSD_caption.value = '';
+    osd_status.addEventListener('change', () => {
+        if (osd_status.checked) {   
+            OSD_caption.disabled = false;  
         } else {                     
             OSD_caption.disabled = true;
+            $('#OSD_caption').val('');
         }
     });  
 
@@ -208,20 +234,51 @@ $(document).ready(function() {
         });
     });
 
-const dhcp_status = document.querySelector('#dhcp-status');
+//================= logout
+   $(document).ready(function() {
+        $('#logout-button').click(function() {
+
+                $.ajax({
+                    url: "{% url 'operation' id=cam_id  %}",
+                    data: {
+                        'op': 'logout',
+                        'cam_ip': '{{cam_ip}}',
+                        'cam_pass': '{{cam_pass}}'
+                    },
+                    success: function(data) {                  
+                        $('#debug-result').text(data.result);
+                        window.location.replace('/'); 
+                    }
+                });
+
+        });
+    });
+  
+   $(document).ready(function() {
+     $('#logout-button1').click(function() {
+            $.post({
+             url: '/',  
+             data: { csrfmiddlewaretoken: '{{ csrf_token }}' }, 
+                success: function() {
+                    //alert('ok')
+                   // window.location.replace('/');  
+                 },
+     error: function() {
+      alert('error'); // обработка ошибок
+    }
+  });
+});
+    });
+
+//=================
+    const dhcp_status = document.querySelector('#dhcp-status');
     const network_ip = document.querySelector('#network-ip');
     const network_mask = document.querySelector('#network-mask');
     const network_gateway = document.querySelector('#network-gateway');
     dhcp_status.addEventListener('change', () => {
-         if (dhcp_status.checked) {   
-            network_ip.disabled = true; 
-            network_mask.disabled = true;
-            network_gateway.disabled = true;
-        } else {                     
-            network_ip.disabled = false;
-            network_mask.disabled = false;
-            network_gateway.disabled = false;
-         }
+        network_ip.disabled = dhcp_status.checked; 
+        network_mask.disabled = dhcp_status.checked;
+        network_gateway.disabled = dhcp_status.checked;
     });  
     
 

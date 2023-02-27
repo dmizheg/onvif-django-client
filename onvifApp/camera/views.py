@@ -8,7 +8,7 @@ from django.template import RequestContext
 from onvifApp.settings import BASE_DIR
 from camera.models import Camera
 from onvif import ONVIFService
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 # import zeep
 # from zeep.wsse.username import UsernameToken
@@ -161,6 +161,12 @@ def operation(request, id):
     if op == 'reboot':
         result = str(mycam.reboot())
 
+    if op == 'logout':
+        #cam_obj.delete()
+        #return render( request, 'camera_login.html', {'success': 'False'})
+
+        result = 'ok'
+
 
     if op == '1':
         osd_status = request.GET.get('osd_status')       
@@ -202,6 +208,12 @@ def operation(request, id):
 
 
 
+def logout(request):
+    print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
+    print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
+    print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
+    
+    return HttpResponse("ok")
 
 
 

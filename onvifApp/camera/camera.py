@@ -251,9 +251,9 @@ class CameraHost():
             # result = subprocess.Popen(['ping', '-c 3', '-i 2', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate()
             ####result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
             #result = subprocess.Popen(['ping ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
-            #result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
+            result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
 
-            result = subprocess.Popen(['ping -c 3 -i 2 ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
+            #result = subprocess.Popen(['ping -c 3 -i 2 ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
 
             if '\n' in result:
                 result = str(result).split('\n')
