@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic.base import View
-from onvif import ONVIFCamera
+from onvif import ONVIFCamera, exceptions
 from django.shortcuts import redirect
 from django.shortcuts import render
 import os
@@ -17,48 +17,59 @@ from camera.camera import CameraHost
 from camera.config import PATHTOWSDL
 
 
+
 # Create your views here.
 class CameraView(View):
-
-
 
     def get(self, request, *args, **kwargs):
         
         # Get Hostname
         cam_obj = Camera.objects.get(id=kwargs['id'])
         mycam = None
+        mycam1 = None
         try:
-            mycam1 = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, PATHTOWSDL)
-            mycam = MyCamera(cam_obj.ip,cam_obj.port, cam_obj.username, cam_obj.password)
             
+            mycam = MyCamera(cam_obj.ip,cam_obj.port, cam_obj.username, cam_obj.password)
+            mycam1 = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, PATHTOWSDL)
+           
         except Exception as e:
             print('Exception message : ' , str(e))
             cam_obj.delete()
-            return render( request,
-			        'camera_login.html', {'success': 'False'})
+            return render( request, 'camera_login.html', {'success': 'False'})
+
+        
+            
         
         # Getdevice information
 
-        resp = mycam.devicemgmt.GetHostname()
-        hostname = str(resp.Name)
-        resp = mycam.devicemgmt.GetDeviceInformation()
-        Manufacturer = str(resp.Manufacturer)
-        Model = str(resp.Model)
-        FirmwareVersion = str(resp.FirmwareVersion)
-        SerialNumber = str(resp.SerialNumber)
-        HardwareId = str(resp.HardwareId)
+        try:
+            resp = mycam.devicemgmt.GetHostname()
+            hostname = str(resp.Name)
+            resp = mycam.devicemgmt.GetDeviceInformation()
+            Manufacturer = str(resp.Manufacturer)
+            Model = str(resp.Model)
+            FirmwareVersion = str(resp.FirmwareVersion)
+            SerialNumber = str(resp.SerialNumber)
+            HardwareId = str(resp.HardwareId)
+        except Exception as e:
+            print('Exception message : ' , str(e))
+            cam_obj.delete()
+            return render( request, 'camera_login.html', {'success': 'False'})
 
         ############
         # GetOSD information
-        OSD_caption = " "
-        try:
-            media_service = mycam.create_media_service()
+        #OSD_caption = " "
+        #try:
+            '''media_service = mycam.create_media_service()
             source_configs = media_service.GetVideoSourceConfigurations()
             VideoSourceConfigurationToken = source_configs[0].token
             OSDOptions = media_service.GetOSDs(VideoSourceConfigurationToken)
-            OSD_caption = OSDOptions[1].TextString.PlainText
-        except Exception as e:
+            OSD_caption = OSDOptions[1].TextString.PlainText'''
+        OSD_caption = mycam.osd_getName()
+        '''except Exception as e:
             print('Exception message : ' , str(e))
+            cam_obj.delete()
+            return render( request, 'camera_login.html', {'success': 'False'})'''
 
 
   
@@ -78,16 +89,22 @@ class CameraView(View):
             #print(syslog_resp_list)
         except Exception as e:
             print('System log error: ', str(e))
+            cam_obj.delete()
+            return render( request, 'camera_login.html', {'success': 'False'})
 
         #############
 
         # Get date time 
-
-        Sysdt_dt = mycam.devicemgmt.GetSystemDateAndTime()
-        Sysdt_tz = Sysdt_dt.TimeZone
-        Sysdt_year = Sysdt_dt.UTCDateTime.Date
-        Sysdt_hour = Sysdt_dt.DaylightSavings
-        NTP_server = mycam.devicemgmt.GetNTP().NTPManual[0].IPv4Address
+        try:
+            Sysdt_dt = mycam.devicemgmt.GetSystemDateAndTime()
+            Sysdt_tz = Sysdt_dt.TimeZone
+            Sysdt_year = Sysdt_dt.UTCDateTime.Date
+            Sysdt_hour = Sysdt_dt.DaylightSavings
+            NTP_server = mycam.devicemgmt.GetNTP().NTPManual[0].IPv4Address
+        except Exception as e:
+            print('Exception message : ' , str(e))
+            cam_obj.delete()
+            return render( request, 'camera_login.html', {'success': 'False'})
         
         #############
         
@@ -120,14 +137,11 @@ class CameraView(View):
 
 def ping_ip(request):
     cam_ip = request.GET.get('cam_ip')
-
     host = CameraHost()
-    
-    result = host.ping(cam_ip)
+    result = host.ping_html_output(cam_ip)
     #result = str(proc).replace("\\n", "<br>")
     #result = str(result).replace("('", "")
     #result = str(result).replace("', None)", "")
-
     data = {        
         'result': result
     }
@@ -163,7 +177,9 @@ def operation(request, id):
 
         
     if op == 'ntp':
-        result = str(mycam.setNTP())
+        ntp_server_ip = request.GET.get('ntp_server_ip')
+        result = str(mycam.setNTP(ntp_server_ip))
+        result = 'Debug info: ' +result+' Set new NTP-server: ' + str(ntp_server_ip)
 
     if op == '5':
         new_dhcp = request.GET.get('new_dhcp')

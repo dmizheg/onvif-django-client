@@ -124,12 +124,14 @@
    //================= ntp
    $(document).ready(function() {
         $('#ntp-enable-button').click(function() {
+            ntp_server_ip =  $('#NTP-server').val();
                 $.ajax({
                     url: "{% url 'operation' id=cam_id  %}",
                     data: {
                         'op': 'ntp',
                         'cam_ip': '{{cam_ip}}',
-                        'cam_pass': '{{cam_pass}}'
+                        'cam_pass': '{{cam_pass}}',
+                        'ntp_server_ip': ntp_server_ip
                     },
                     success: function(data) {                  
                         $('#debug-result').text(data.result);

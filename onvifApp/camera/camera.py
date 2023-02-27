@@ -1,6 +1,6 @@
 ########################################
-# 24.02.2023
-#
+# 27.02.2023
+# v.2
 #
 ########################################
 from onvif import ONVIFCamera, exceptions
@@ -91,12 +91,18 @@ class MyCamera(ONVIFCamera):
         else:
             return self.devicemgmt.GetNTP().NTPManual[0].IPv4Address
 
-    def setNTP(self):  # получаем информацию
+    def setNTP(self, server_ip):  # получаем информацию
         if self.error:
             return self.error
         else:
+            time_params = self.devicemgmt.create_type('SetSystemDateAndTime')
+            time_params.DateTimeType = 'NTP'
+            time_params.DaylightSavings = False
+            # time_params.TimeZone = {'TZ': 'CST-3:00:00'}
+            # time_params.TimeZone = {'TZ': 'CST-3'}
+            self.devicemgmt.SetSystemDateAndTime(time_params)
             dev_service = self.get_service("devicemgmt")
-            param = {'FromDHCP': False, 'NTPManual': [{'Type': 'IPv4', 'IPv4Address': "10.1.0.1"}]}
+            param = {'FromDHCP': False, 'NTPManual': [{'Type': 'IPv4', 'IPv4Address': server_ip}]}
             dev_service.SetNTP(param)
             return "OK"
 
@@ -135,7 +141,8 @@ class MyCamera(ONVIFCamera):
             try:
                 return self.OSDOptions[1].TextString.PlainText
             except:
-                return "OSD caption is disabled"
+                #return "OSD caption is disabled"
+                return ""
 
     def osd_changeName(self, caption):
         if self.error:
@@ -239,10 +246,20 @@ class MyCamera(ONVIFCamera):
 
 
 class CameraHost():
-    def ping(self, host):  # ping
+    def ping_html_output(self, host):  # ping
         try:
             # result = subprocess.Popen(['ping', '-c 3', '-i 2', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate()
-            result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866')
+            ####result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
+            #result = subprocess.Popen(['ping ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
+            #result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
+
+            result = subprocess.Popen(['ping -c 3 -i 2 ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
+
+            if '\n' in result:
+                result = str(result).split('\n')
+
+            #result = str(result).replace("\n","<br>")
         except subprocess.CalledProcessError as err:
             result = ("An error occurred while trying ping: %s" % err.output)
+            #result = str(result).replace("\n","")
         return result

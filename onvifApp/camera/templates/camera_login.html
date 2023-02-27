@@ -54,26 +54,19 @@
 
 <br>
 
-
 <br>
 <div class="ui one column stackable center aligned container grid">
             <div class="sixteen wide mobile eight wide computer column">
                     <div class="ui raised padded text container segment">
-
-                      <div class="field">
+                      <div class="field"> 
                         <label>IP address for ping: </label>
                         <input type="text" id="ping_ip" name="ping_ip" placeholder="10.2.0.1" required>
-                        <button id="ping-button"> ping </button><br>
-        
-                        <div class="ui white " style="text-align: left; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
-                          <br>
-                          <div id="ping-result"></div>
-
-                        </div>  
+                        <button id="ping-button"> ping </button><br><br>
+                        <div class="ui white " style="text-align: left; padding-left: 10%;; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+                             <div id="ping-result"></div>
+                        </div> 
                       </div>
-                      
-
-                    </div>
+                     </div>
               </div>   
   </div>
                       
@@ -91,11 +84,23 @@
                     data: {
                         'cam_ip': ping_ip,
                     },
-                    success: function(data) {                  
-                        $('#ping-result').text(data.result);
+                    success: function(data) {           
+                        //$('#ping-result').text(data.result);
+                        var lines = data.result;
+                        var linesHtml = "";
+
+             
+                        if (lines.length <15) {
+                        for (var i = 0; i < lines.length; i++) {
+                                                                     linesHtml += lines[i] + "<br>";
+                                                                }
+                          document.getElementById("ping-result").innerHTML = linesHtml;
+                        } else {
+                          document.getElementById("ping-result").innerHTML = data.result;;
+                        }
+
                     }
                 });
-            
         });
     });
 
