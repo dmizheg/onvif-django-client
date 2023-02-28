@@ -111,7 +111,6 @@ class CameraView(View):
         #############
         
         # Get network information
-
         config = mycam.get_network_config()
 
         param = {
@@ -156,7 +155,19 @@ def ping_ip(request):
 
 
 
-
+@csrf_exempt
+def get_image(request, id):
+    print('dfgsdfgsdfsdfsfsfsdfsdfsdsgds')
+    if request.method == 'POST':
+        mycam = MyCamera('192.168.0.12','80', 'admin', '1beltelecombtk')
+        jpeg = mycam.get_snapshot('1beltelecombtk')  # получение изображения
+        response = HttpResponse(jpeg, content_type='image/jpeg')
+        response['Content-Disposition'] = 'attachment; filename=image.jpg'
+        return response
+    else:
+        response_data = {'success': False, 'error': 'Метод не поддерживается'}
+        return JsonResponse(response_data)
+    
 
 def operation(request, id):
     op = request.GET.get('op')
@@ -166,13 +177,7 @@ def operation(request, id):
     mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
 
 
-    if op == 'get_image':
-        #data = mycam.get_snapshot_uri(cam_pass)
-        data = mycam.get_snapshot(cam_pass)
-        result = 'ok'
-        encoded_image = base64.b64encode(data).decode('utf-8')
-        response = HttpResponse(encoded_image, content_type='image/jpeg')
-        return response
+ 
 
 
 
@@ -206,47 +211,52 @@ def operation(request, id):
         new_dhcp = request.GET.get('new_dhcp')
         new_ip = request.GET.get('new_ip')
         new_mask = request.GET.get('new_mask')
-        new_gateway = 
-        if new_dhcp == 'true':
-            new_dhcp = True
-        else:
-            new_dhcp = False
-        result = mycam.set_network_config(bool(new_dhcp), new_ip, new_mask, new_gateway)
+        new_gateway = request.GET.get('new_gateway')
+        new_dhcp = True if new_dhcp == 'true' else False
+
+        result = mycam.set_network_config(new_dhcp, new_ip, new_mask, new_gateway)
         result = 'Debug info: Manual reboot: ' + str(result)
+
+
+
+        
 
     data = {        
         'result': result
     }
+
     return JsonResponse(data)
 
 
 
 
 
-def logout(request):
+def logout1(request, id):
     print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
     return HttpResponse("ok")
 
+def logout(request, id):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse('Данные успешно отправлены!')
+    else:
+        return render(request, 'my_template.html')
 
 
-
-
+ 
 
 
 
 class CameraLoginView(View):
 
     def get(self, request, *args, **kwargs):     
-        return render( request,
-			'camera_login.html')
+        return render( request, 'camera_login.html')
 
     def post(self, request, *args, **kwargs):
         ip = request.POST.get('ip-add','') 
         port = request.POST.get('port', '')
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
-        obj = Camera.objects.create(ip=ip, port=port,
-            username=username, password=password)
+        obj = Camera.objects.create(ip=ip, port=port, username=username, password=password)
         print(obj.id)
-        return redirect(
-			'camera_detail', obj.id)
+        return redirect('camera_detail', obj.id)

@@ -52,7 +52,7 @@
     </div>
 </div>
 
-
+  
 <div class="ui container grid">
     <div class="eight wide computer sixteen wide mobile column">
         <div class="ui orange message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
@@ -99,8 +99,8 @@
                              <img src="{% static ImageURI %}" alt="My Image" style="width: 100%; height: auto;"> 
                              <img src='http://admin:1beltelecombtk@10.252.45.232:85/images/snapshot.jpg' alt="Image" style="width: 100%; height: auto;"> 
                             --->
-                           <!---   <img src='{{ ImageURI}} ' alt="No Image" style="width: 100%; height: auto;"> 
-                            --->
+                             <img src='{{ ImageURI}} ' alt="No Image" style="width: 100%; height: auto;"> 
+                            
                     </div>
                     <br>
                     </div>
@@ -149,36 +149,61 @@
 
 <!------------------------------------------------------------------------------------------------------------->
 <script>
+// Получаем элементы страницы
+var getImageButton = document.getElementById('get-image-button');
+var imagePreview = document.getElementById('image-preview');
+
+// Обработчик события нажатия на кнопку
+getImageButton.addEventListener('click', function(event) {
+    event.preventDefault();  // Отменяем стандартное поведение браузера
+
+    // Создаем объект FormData для отправки POST-запроса на сервер
+    var formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');  // Добавляем токен CSRF
+    formData.append('action', 'get_image');
+
+    // Отправляем AJAX-запрос на сервер
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '{% url 'get_image' id=cam_id %}');
+    xhr.responseType = 'blob';
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var blob = new Blob([xhr.response], { type: 'image/jpeg' });
+            var url = window.URL.createObjectURL(blob);
+            imagePreview.src = url;
+        } else {
+            console.log('Произошла ошибка при отправке запроса');
+        }
+    };
+    xhr.send(formData);
+});
 
 //================= img
 $(document).ready(function() {
         $('#get-image-button1').click(function() {
-            
             $.ajax({
                 url: "{% url 'operation' id=cam_id  %}",
                 data: {
-                    'op': 'get_image',
-                    'cam_ip': '{{cam_ip}}',
-                    'cam_pass': '{{cam_pass}}'
+                    'op'       : 'get_image',
+                    'cam_ip'   : '{{cam_ip}}',
+                    'cam_pass' : '{{cam_pass}}'
                 },
                 success: function(data) {
                     $('#debug-result').text(data.result);
-                   // var img = document.getElementById("image-from-cam");
-                    //img.scr = 'hjkhg';
 
-                    
+                
                 }
             });
         });
     });
 
     $(document).ready(function() {
-        $('#get-image-button').click(function() {
+        $('#get-image-button2').click(function() {
             $.post({
-             url: '/',  
+             url: '{% url 'logout' id=cam_id %}',  
              data: { csrfmiddlewaretoken: '{{ csrf_token }}' }, 
                 success: function() {
-                    alert('ok')
+                    alert('okkk')
                    
                  },
      error: function() {
@@ -191,14 +216,13 @@ $(document).ready(function() {
    //================= ntp
    $(document).ready(function() {
         $('#ntp-enable-button').click(function() {
-            ntp_server_ip =  $('#NTP-server').val();
                 $.ajax({
                     url: "{% url 'operation' id=cam_id  %}",
                     data: {
-                        'op': 'ntp',
-                        'cam_ip': '{{cam_ip}}',
-                        'cam_pass': '{{cam_pass}}',
-                        'ntp_server_ip': ntp_server_ip
+                        'op'            : 'ntp',
+                        'cam_ip'        : '{{cam_ip}}',
+                        'cam_pass'      : '{{cam_pass}}',
+                        'ntp_server_ip' : $('#NTP-server').val()
                     },
                     success: function(data) {                  
                         $('#debug-result').text(data.result);
@@ -211,16 +235,15 @@ $(document).ready(function() {
 //================= osd
 $(document).ready(function() {
         $('#save-osd-button').click(function() {
-            caption =  $('#OSD_caption').val();
             var checkBox = document.getElementById("osd_status");
             $.ajax({
                 url: "{% url 'operation' id=cam_id  %}",
                 data: {
-                    'op': '1',
-                    'osd_status': checkBox.checked,
-                    'caption': caption,
-                    'cam_ip': '{{cam_ip}}',
-                    'cam_pass': '{{cam_pass}}'
+                    'op'         : '1',
+                    'osd_status' : checkBox.checked,
+                    'caption'    : $('#OSD_caption').val(),
+                    'cam_ip'     : '{{cam_ip}}',
+                    'cam_pass'   : '{{cam_pass}}'
                 },
                 success: function(data) {
                     $('#debug-result').text(data.result);
@@ -232,42 +255,27 @@ $(document).ready(function() {
     const osd_status = document.querySelector('#osd_status');
     const OSD_caption = document.querySelector('#OSD_caption');
     osd_status.addEventListener('change', () => {
-        if (osd_status.checked) {   
-            OSD_caption.disabled = false;  
-        } else {                     
-            OSD_caption.disabled = true;
-            $('#OSD_caption').val('');
-        }
+        OSD_caption.disabled = !osd_status.checked ? true : false;
+        $('#OSD_caption').val('');
     });  
-
-
-
  
 //================= network
     $(document).ready(function() {
         $('#submit-network-information').click(function() {
             var checkBox = document.getElementById("dhcp-status");       
-            
-            new_dhcp = checkBox.checked;
-            new_ip =  $('#network-ip').val();
-            new_mask =  $('#network-mask').val();
-            new_gateway =  $('#network-gateway').val();
-
-
             if (showAlert() == true) {
                 $.ajax({
                     url: "{% url 'operation' id=cam_id  %}",
                     data: {
-                        'op': '5',
-                        'cam_ip': '{{cam_ip}}',
-                        'cam_pass': '{{cam_pass}}',
-                        'new_dhcp': new_dhcp,
-                        'new_ip': new_ip,
-                        'new_mask': new_mask,
-                        'new_gateway': new_gateway
+                        'op'         : '5',
+                        'cam_ip'     : '{{cam_ip}}',
+                        'cam_pass'   : '{{cam_pass}}',
+                        'new_dhcp'   : checkBox.checked,
+                        'new_ip'     : $('#network-ip').val(),
+                        'new_mask'   : $('#network-mask').val(),
+                        'new_gateway': $('#network-gateway').val()
                     },
                     success: function(data) {
-                        //showAlertReboot()
                         $('#debug-result').text(data.result);
                     }
                 });
@@ -278,13 +286,12 @@ $(document).ready(function() {
 //================= logout
    $(document).ready(function() {
         $('#logout-button').click(function() {
-
                 $.ajax({
                     url: "{% url 'operation' id=cam_id  %}",
                     data: {
-                        'op': 'logout',
-                        'cam_ip': '{{cam_ip}}',
-                        'cam_pass': '{{cam_pass}}'
+                        'op'       : 'logout',
+                        'cam_ip'   : '{{cam_ip}}',
+                        'cam_pass' : '{{cam_pass}}'
                     },
                     success: function(data) {                  
                         $('#debug-result').text(data.result);
@@ -298,9 +305,12 @@ $(document).ready(function() {
    $(document).ready(function() {
      $('#logout-button1').click(function() {
             $.post({
-             url: '/',  
-             data: { csrfmiddlewaretoken: '{{ csrf_token }}' }, 
-                success: function() {
+                url: '/',  
+                
+                data: { 
+                     'name': 'name' 
+                }, 
+            success: function() {
                     //alert('ok')
                    // window.location.replace('/');  
                  },
