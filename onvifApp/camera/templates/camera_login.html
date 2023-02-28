@@ -79,6 +79,7 @@
   $(document).ready(function() {
         $('#ping-button').click(function() {
           ping_ip =  $('#ping_ip').val();
+          $('#ping-result').text("pinging...");
                 $.ajax({
                     url: "{% url 'ping_ip' %}",
                     data: {

@@ -1,6 +1,6 @@
 ########################################
 # 27.02.2023
-# v.2
+# v.2.2
 #
 ########################################
 from onvif import ONVIFCamera, exceptions
@@ -133,6 +133,21 @@ class MyCamera(ONVIFCamera):
         except exceptions.ONVIFError as err:
             result = ("An error occurred while getting snapshot: %s" % err)
         return result
+    
+    
+    def get_snapshot_uri(self, password):
+        try:
+            # profiles = self.media_service.GetProfiles()
+            for profile in self.profiles:
+                snapshot = self.media_service.create_type('GetSnapshotUri')
+            snapshot.ProfileToken = profile.token
+            output_snap_uri = self.media_service.GetSnapshotUri(snapshot)
+            #data = requests.get(str(output_snap_uri.Uri), auth=HTTPDigestAuth('admin', password), verify=False, stream=True).content
+            result = output_snap_uri.Uri
+        except exceptions.ONVIFError as err:
+            result = ("An error occurred while getting snapshot: %s" % err)
+        return result
+
 
     def osd_getName(self):
         if self.error:
@@ -249,17 +264,18 @@ class CameraHost():
     def ping_html_output(self, host):  # ping
         try:
             # result = subprocess.Popen(['ping', '-c 3', '-i 2', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate()
-            ####result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
-            #result = subprocess.Popen(['ping ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
             result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
 
-            #result = subprocess.Popen(['ping -c 3 -i 2 ' f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
+          
+
+            #result = subprocess.Popen(['ping', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
+            #result = str(result).replace("\\n","<br>")
+            #result = str(result).replace("('"," ")
+            #result = str(result).replace("', None)"," ")
 
             if '\n' in result:
                 result = str(result).split('\n')
-
-            #result = str(result).replace("\n","<br>")
+            
         except subprocess.CalledProcessError as err:
             result = ("An error occurred while trying ping: %s" % err.output)
-            #result = str(result).replace("\n","")
         return result

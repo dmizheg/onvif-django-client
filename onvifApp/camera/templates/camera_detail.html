@@ -95,11 +95,14 @@
             <div class="ui two column grid">
                 <div class="column">
                     <div class="ui segment">
-                            {% load static %}
-                             <img src="{% static 'test.jpg' %}" alt="My Image" style="width: 100%; height: auto;"> 
-                                <br>
+                          <!--- {% load static %}
+                             <img src="{% static ImageURI %}" alt="My Image" style="width: 100%; height: auto;"> 
+                             <img src='http://admin:1beltelecombtk@10.252.45.232:85/images/snapshot.jpg' alt="Image" style="width: 100%; height: auto;"> 
+                            --->
+                           <!---   <img src='{{ ImageURI}} ' alt="No Image" style="width: 100%; height: auto;"> 
+                            --->
                     </div>
-                    
+                    <br>
                     </div>
                     
                 <div class="column">
@@ -108,11 +111,11 @@
                
                 </div>
             </div>
+            
 
-
-            <button style="id="submit-image-information">Get</button>
-            <button style="float: right; id="submit-image-information">Save</button>
-
+            <button style="float: left;" id="get-image-button">Get</button>
+            <button style="float: right;" id="submit-image-information">Save</button>
+            <br>
 
         </div>
     </div>
@@ -146,6 +149,44 @@
 
 <!------------------------------------------------------------------------------------------------------------->
 <script>
+
+//================= img
+$(document).ready(function() {
+        $('#get-image-button1').click(function() {
+            
+            $.ajax({
+                url: "{% url 'operation' id=cam_id  %}",
+                data: {
+                    'op': 'get_image',
+                    'cam_ip': '{{cam_ip}}',
+                    'cam_pass': '{{cam_pass}}'
+                },
+                success: function(data) {
+                    $('#debug-result').text(data.result);
+                   // var img = document.getElementById("image-from-cam");
+                    //img.scr = 'hjkhg';
+
+                    
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $('#get-image-button').click(function() {
+            $.post({
+             url: '/',  
+             data: { csrfmiddlewaretoken: '{{ csrf_token }}' }, 
+                success: function() {
+                    alert('ok')
+                   
+                 },
+     error: function() {
+                 alert('error'); // обработка ошибок
+                 }
+                 });
+                });
+             });
 
    //================= ntp
    $(document).ready(function() {

@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from camera.camera import MyCamera
 from camera.camera import CameraHost
 from camera.config import PATHTOWSDL
+import base64
 
 
 
@@ -37,8 +38,7 @@ class CameraView(View):
             cam_obj.delete()
             return render( request, 'camera_login.html', {'success': 'False'})
 
-        
-            
+                    
         
         # Getdevice information
 
@@ -58,21 +58,23 @@ class CameraView(View):
 
         ############
         # GetOSD information
-        #OSD_caption = " "
-        #try:
-            '''media_service = mycam.create_media_service()
-            source_configs = media_service.GetVideoSourceConfigurations()
-            VideoSourceConfigurationToken = source_configs[0].token
-            OSDOptions = media_service.GetOSDs(VideoSourceConfigurationToken)
-            OSD_caption = OSDOptions[1].TextString.PlainText'''
         OSD_caption = mycam.osd_getName()
-        '''except Exception as e:
-            print('Exception message : ' , str(e))
-            cam_obj.delete()
-            return render( request, 'camera_login.html', {'success': 'False'})'''
+
 
 
   
+        #image_uri = 'http://admin:1beltelecombtk@10.252.45.232:85/images/snapshot.jpg'
+        try:
+            image_path = mycam.get_snapshot_uri(cam_obj.password)
+            image_path = image_path.replace('http://','')
+            #image_path = '10.252.45.232:85/images/snapshot.jpg'
+            image_uri = f"http://{cam_obj.username}:{cam_obj.password}@{image_path}"
+            pass
+        except:
+            print('errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrro')
+            print('errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrro')
+            image_uri = 'http://127.0.0.1:8000/static/blank.png'
+
 
 
         ############
@@ -121,7 +123,8 @@ class CameraView(View):
                 'Sysdt_dt':Sysdt_dt, 'Sysdt_year' : Sysdt_year,
                 'Sysdt_hour' : Sysdt_hour, 'Sysdt_tz' : Sysdt_tz,
                 'NTP_server' : NTP_server, 'OSD_caption' : OSD_caption,
-                'cam_id' : cam_obj.id, 'cam_ip' : cam_obj.ip, 'cam_pass' : cam_obj.password 
+                'cam_id' : cam_obj.id, 'cam_ip' : cam_obj.ip, 'cam_pass' : cam_obj.password,
+                'ImageURI' : image_uri
                 }
 
 
@@ -131,6 +134,10 @@ class CameraView(View):
         return render(request, 'camera_detail.html', param)
 
 
+                                  
+          
+                                   
+          
 
 
 
@@ -158,15 +165,23 @@ def operation(request, id):
   
     mycam = MyCamera(cam_ip,80, 'admin', cam_pass)
 
+
+    if op == 'get_image':
+        #data = mycam.get_snapshot_uri(cam_pass)
+        data = mycam.get_snapshot(cam_pass)
+        result = 'ok'
+        encoded_image = base64.b64encode(data).decode('utf-8')
+        response = HttpResponse(encoded_image, content_type='image/jpeg')
+        return response
+
+
+
+
     if op == 'reboot':
         result = str(mycam.reboot())
 
     if op == 'logout':
-        #cam_obj.delete()
-        #return render( request, 'camera_login.html', {'success': 'False'})
-
         result = 'ok'
-
 
     if op == '1':
         osd_status = request.GET.get('osd_status')       
@@ -191,7 +206,7 @@ def operation(request, id):
         new_dhcp = request.GET.get('new_dhcp')
         new_ip = request.GET.get('new_ip')
         new_mask = request.GET.get('new_mask')
-        new_gateway = request.GET.get('new_gateway')
+        new_gateway = 
         if new_dhcp == 'true':
             new_dhcp = True
         else:
@@ -210,21 +225,10 @@ def operation(request, id):
 
 def logout(request):
     print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
-    print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
-    print("sdfsfsdsdfsfsdsdfsfsdsdfsfsdsdfsfsd")
-    
     return HttpResponse("ok")
 
 
 
-
- 
-
- 
- 
-
-
- 
 
 
 
