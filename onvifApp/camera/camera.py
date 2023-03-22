@@ -1,6 +1,6 @@
 ########################################
-# 28.02.2023
-# v.2.3
+# 22.03.2023
+# v.2.4
 #
 ########################################
 from onvif import ONVIFCamera, exceptions
@@ -84,6 +84,33 @@ class MyCamera(ONVIFCamera):
             return self.devicemgmt.GetDeviceInformation().HardwareId
         except exceptions.ONVIFError as err:
             return "An error occurred while getting the hardware id : %s" % err
+
+
+    def setAdminPassword(self, password, repeat_password):  # Устанавливает новый парль для admin
+        if self.error:
+            return self.error
+        else:
+            try:
+                users = self.devicemgmt.GetUsers()
+
+                for user in users:
+                    if user.Username == 'admin':
+                        target_user = user
+                        break
+
+                if password == repeat_password:
+                    target_user.Password = password
+                    self.devicemgmt.SetUser(target_user)  
+                    result = ("OK")           
+                else: 
+                    result = ("The repeated password was entered incorrectly")
+
+            except exceptions.ONVIFError as err:
+                result = ("An error occurred while setting new password: %s" % err)
+
+            return result
+
+
 
     def getNTP(self):  # Возвращает настройки NTP
         if self.error:
@@ -263,15 +290,20 @@ class MyCamera(ONVIFCamera):
 class CameraHost():
     def ping_html_output(self, host):  # ping
         try:
+            host = host.strip()
             # result = subprocess.Popen(['ping', '-c 3', '-i 2', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate()
-            result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
+
+            #------------------lin
+            #result = check_output(['ping -c 3 -i 2 ' + host], stderr=STDOUT, shell=True, encoding='cp866') #linux
+            #------------------end lin
 
           
-
-            #result = subprocess.Popen(['ping', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
-            #result = str(result).replace("\\n","<br>")
-            #result = str(result).replace("('"," ")
-            #result = str(result).replace("', None)"," ")
+            #------------------win
+            result = subprocess.Popen(['ping', f'{host}'], stdout=subprocess.PIPE, encoding='cp866').communicate() #win
+            result = str(result).replace("\\n","<br>")
+            result = str(result).replace("('"," ")
+            result = str(result).replace("', None)"," ")
+            #------------------end win
 
             if '\n' in result:
                 result = str(result).split('\n')

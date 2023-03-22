@@ -4,6 +4,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    
+  <meta charset="utf-8">
 	<title>onvif</title>
 
     <style>
@@ -12,6 +15,9 @@
         background-color: #afacac;
         font-family: Arial, sans-serif;
         font-size: 16px;
+        margin: 0;
+        height: 100%;
+        
       }
       
         .button-container {
@@ -22,6 +28,19 @@
             position: fixed;
             top: 10px;
             left: 10px;
+
+          }
+          
+          footer {
+            
+            color: #4b4949;
+            padding: 10px;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px; /* Высота футера */
+            
           }
     </style>
 
@@ -36,5 +55,8 @@
         {% block head %}{% endblock %}
         {% block content %}{% endblock %}
 
+<footer>
+<p>Last update 22.03.2022</p>
+</footer>        
 </body>
 </html>

@@ -217,6 +217,14 @@ def operation(request, id):
         result = mycam.set_network_config(new_dhcp, new_ip, new_mask, new_gateway)
         result = 'Debug info: Manual reboot: ' + str(result)
 
+    if op == 'set_new_password':
+        new_password = request.GET.get('new_password')
+        repeat_password = request.GET.get('repeat_password')
+            
+        result = mycam.setAdminPassword(new_password, repeat_password)
+
+        result = 'Debug info: Trying to set a new password: ' + str(result)
+
 
 
         
