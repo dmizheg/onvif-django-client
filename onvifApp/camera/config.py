@@ -1,12 +1,12 @@
 
 # home test
-#PATHTOWSDL = '/Users/zhegulovichds/PycharmProjects/pythonProject/venv/lib/python3.9/site-packages/wsdl/'
+#PATHTOWSDL = '/Users/user/PycharmProjects/pythonProject/venv/lib/python3.9/site-packages/wsdl/'
 
 # work test
-PATHTOWSDL = '/home/zhegulovichds/PycharmProjects/CamBot/venv/lib/python3.10/site-packages/wsdl/'
+PATHTOWSDL = '/home/user/PycharmProjects/CamBot/venv/lib/python3.10/site-packages/wsdl/'
 
 # other
-#PATHTOWSDL = 'c:/Users/zhegulovichds/AppData/Local/Programs/Python/Python311/Lib/site-packages/wsdl/'
+#PATHTOWSDL = 'c:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/wsdl/'
 
 
 # prod
